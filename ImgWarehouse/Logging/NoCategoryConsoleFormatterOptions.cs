@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging.Console;
 
-namespace ImgWarehouse.Core.Logging;
+namespace ImgWarehouse.Logging;
 
 internal sealed class NoCategoryConsoleFormatterOptions : SimpleConsoleFormatterOptions
 {

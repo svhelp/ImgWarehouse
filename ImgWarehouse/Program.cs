@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using ImgWarehouse.Core;
-using ImgWarehouse.Core.Logging;
+using ImgWarehouse.Logging;
+using ImgWarehouse.Models;
 using Microsoft.Extensions.Logging;
 
 class Options
@@ -13,6 +14,12 @@ class Options
 
     [Option(Default = false, HelpText = "Takes only one image from each directory recoursively.")]
     public bool OneImagePerLevel { get; set; }
+
+    [Option(Default = false)]
+    public bool NoArchive { get; set; }
+
+    [Option(Default = false)]
+    public bool ForceArchive { get; set; }
 
     [Option(
       Default = false,
@@ -51,7 +58,16 @@ class Program
         Logger.LogDebug($"OneImagePerLevel: {opts.OneImagePerLevel}");
         Logger.LogInformation("Processing started");
 
-        new MainProcessor().Process(opts.ContactListSize, opts.ChunkSize, opts.OneImagePerLevel);
+        var config = new ProcessorConfig
+        {
+            ArchiveConfig = new ArchiveConfig
+            {
+                Forced = opts.ForceArchive,
+                Skip = opts.NoArchive
+            }
+        };
+
+        new MainProcessor(config).Process(opts.ContactListSize, opts.ChunkSize, opts.OneImagePerLevel);
     }
 
     static void HandleParseError(IEnumerable<Error> errs)

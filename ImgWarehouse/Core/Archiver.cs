@@ -3,40 +3,41 @@ using ImgWarehouse.Models;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 
-namespace ImgWarehouse.Core
-{
-    internal class Archiver
-    {
-        private ILogger Logger { get; set; } = LoggerServiceLocator.CreateLogger<Archiver>();
+namespace ImgWarehouse.Core;
 
-        public void ArchiveDirectory(ArchiveConfig config, string directoryPath)
+internal class Archiver
+{
+    private ILogger Logger { get; set; } = LoggerServiceLocator.CreateLogger<Archiver>();
+
+    public void ArchiveDirectory(ArchiveConfig config, string directoryPath)
+    {
+        if (config.Skip)
         {
-            if (config.Skip)
+            return;
+        }
+
+        var outputArchive = $"{directoryPath}.zip";
+
+        if (File.Exists(outputArchive))
+        {
+            if (config.Forced)
             {
+                Logger.LogWarning("Archive already exists for the directory, removing.");
+
+                File.Delete(outputArchive);
+            }
+            else
+            {
+                Logger.LogWarning("Archive already exists for the directory, skipping.");
+
                 return;
             }
-
-            if (File.Exists($"{directoryPath}.zip"))
-            {
-                if (config.Forced)
-                {
-                    Logger.LogWarning($"Archive already exists for directory: {directoryPath}, removing.");
-
-                    File.Delete($"{directoryPath}.zip");
-                }
-                else
-                {
-                    Logger.LogWarning($"Archive already exists for directory: {directoryPath}, skipping.");
-
-                    return;
-                }
-            }
-
-            Logger.LogDebug($"Archiving directory: {directoryPath}");
-
-            ZipFile.CreateFromDirectory(directoryPath, $"{directoryPath}.zip", CompressionLevel.Optimal, includeBaseDirectory: false);
-
-            Logger.LogInformation($"Directory archived: {directoryPath}.zip");
         }
+
+        Logger.LogDebug("Archiving directory");
+
+        ZipFile.CreateFromDirectory(directoryPath, outputArchive, CompressionLevel.Optimal, includeBaseDirectory: false);
+
+        Logger.LogInformation("Directory archived");
     }
 }

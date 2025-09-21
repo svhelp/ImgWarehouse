@@ -44,7 +44,10 @@ class Program
 
         using var lf = LoggerFactory.Create(builder => builder
             .AddConsole(options => options.FormatterName = "noCategoryConsoleFormatter")
-            .AddConsoleFormatter<NoCategoryConsoleFormatter, NoCategoryConsoleFormatterOptions>()
+            .AddConsoleFormatter<NoCategoryConsoleFormatter, NoCategoryConsoleFormatterOptions>(config =>
+            {
+                config.Verbose = opts.Verbose;
+            })
             .SetMinimumLevel(logLevel)
         );
 
@@ -53,9 +56,6 @@ class Program
         Logger = LoggerServiceLocator.CreateLogger<Program>();
 
         Logger.LogDebug("Logger initialized");
-        Logger.LogDebug($"ChunkSize: {opts.ChunkSize}");
-        Logger.LogDebug($"ContactListSize: {opts.ContactListSize}");
-        Logger.LogDebug($"OneImagePerLevel: {opts.OneImagePerLevel}");
         Logger.LogInformation("Processing started");
 
         var config = new ProcessorConfig

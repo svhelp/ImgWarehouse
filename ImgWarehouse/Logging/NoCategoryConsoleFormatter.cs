@@ -13,6 +13,7 @@ internal sealed class NoCategoryConsoleFormatter : ConsoleFormatter, IDisposable
         _formatterOptions.ColorBehavior == LoggerColorBehavior.Enabled ||
         _formatterOptions.ColorBehavior == LoggerColorBehavior.Default &&
         Console.IsOutputRedirected == false;
+    private bool Verbose => _formatterOptions.Verbose;
 
     public NoCategoryConsoleFormatter(IOptionsMonitor<NoCategoryConsoleFormatterOptions> options)
         : base("noCategoryConsoleFormatter") =>
@@ -33,10 +34,19 @@ internal sealed class NoCategoryConsoleFormatter : ConsoleFormatter, IDisposable
             return;
         }
 
-        string timestamp = DateTime.Now.ToString("HH:mm:ss");
-        string logContent = $"{logEntry.LogLevel}: {message}";
+        List<object> scopes = new();
+        scopeProvider.ForEachScope((scope, state) => state.Add(scope), scopes);
 
-        textWriter.Write($"[{timestamp}] ");
+        string timestamp = DateTime.Now.ToString("HH:mm:ss");
+        string scopeInfo = scopes.Count > 0
+            ? string.Join(" ", scopes.Select(scope => $"[{scope}]"))
+            : string.Empty;
+        string logLevel = Verbose || logEntry.LogLevel != LogLevel.Information
+            ? $"{logEntry.LogLevel.ToString()}: "
+            : string.Empty;
+        string logContent = $"{logLevel}{message}";
+
+        textWriter.Write($"[{timestamp}] {scopeInfo} ");
 
         if (ConsoleColorFormattingEnabled)
         {

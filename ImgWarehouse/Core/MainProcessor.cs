@@ -1,6 +1,6 @@
-﻿using ImgWarehouse.Core.Logging;
+﻿using ImgWarehouse.Logging;
+using ImgWarehouse.Models;
 using Microsoft.Extensions.Logging;
-using System.IO.Compression;
 
 namespace ImgWarehouse.Core
 {
@@ -8,9 +8,18 @@ namespace ImgWarehouse.Core
     {
         static readonly string[] SupportedImageExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".webp"];
 
+        public MainProcessor(ProcessorConfig config)
+        {
+            Config = config;
+        }
+
         private ILogger Logger { get; set; } = LoggerServiceLocator.CreateLogger<MainProcessor>();
 
         private ContactList ContactList { get; set; } = new ContactList();
+
+        private Archiver Archiver { get; set; } = new Archiver();
+
+        private ProcessorConfig Config { get; set; }
 
         public bool Process(int contactListSize, int chunkSize, bool recoursive)
         {
@@ -57,9 +66,7 @@ namespace ImgWarehouse.Core
 
             ContactList.Create(images, Path.Combine(baseDirectory, $"{directoryPath}.jpg"));
 
-            Logger.LogDebug($"Archiving directory: {directoryPath}");
-
-            ZipFile.CreateFromDirectory(directoryPath, $"{directoryPath}.zip", CompressionLevel.Optimal, includeBaseDirectory: false);
+            Archiver.ArchiveDirectory(Config.ArchiveConfig, directoryPath);
 
             Logger.LogInformation($"Directory successfully processed: {directoryPath}");
         }

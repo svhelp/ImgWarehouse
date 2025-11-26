@@ -1,4 +1,4 @@
-﻿namespace ImgWarehouse.Core.Logging;
+﻿namespace ImgWarehouse.Logging;
 
 internal static class TextWriterExtensions
 {

@@ -1,5 +1,5 @@
 ﻿using ImageMagick;
-using ImgWarehouse.Core.Logging;
+using ImgWarehouse.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace ImgWarehouse.Core

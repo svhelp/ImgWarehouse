@@ -4,5 +4,5 @@ namespace ImgWarehouse.Logging;
 
 internal sealed class NoCategoryConsoleFormatterOptions : SimpleConsoleFormatterOptions
 {
-    public string? CustomPrefix { get; set; }
+    public bool Verbose { get; set; } = false;
 }

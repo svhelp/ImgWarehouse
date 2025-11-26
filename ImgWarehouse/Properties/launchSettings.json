@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ImgWarehouse": {
+      "commandName": "Project",
+      "commandLineArgs": "--verbose"
+    }
+  }
+}

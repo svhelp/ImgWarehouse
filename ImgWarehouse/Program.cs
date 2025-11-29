@@ -12,8 +12,8 @@ class Options
     [Option(Default = 30)]
     public int ChunkSize { get; set; }
 
-    [Option(Default = false, HelpText = "Takes only one image from each directory recoursively.")]
-    public bool OneImagePerLevel { get; set; }
+    [Option(Default = NestingHandlerType.Recoursive)]
+    public NestingHandlerType NestingHandler { get; set; }
 
     [Option(Default = false)]
     public bool NoArchive { get; set; }
@@ -60,6 +60,7 @@ class Program
 
         var config = new ProcessorConfig
         {
+            NestingHanglerType = opts.NestingHandler,
             ArchiveConfig = new ArchiveConfig
             {
                 Forced = opts.ForceArchive,
@@ -67,7 +68,7 @@ class Program
             }
         };
 
-        new MainProcessor(config).Process(opts.ContactListSize, opts.ChunkSize, opts.OneImagePerLevel);
+        new MainProcessor(config).Process(opts.ContactListSize, opts.ChunkSize);
     }
 
     static void HandleParseError(IEnumerable<Error> errs)

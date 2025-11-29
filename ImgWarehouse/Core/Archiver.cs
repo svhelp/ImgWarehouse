@@ -11,11 +11,6 @@ internal class Archiver
 
     public void ArchiveDirectory(ArchiveConfig config, string directoryPath)
     {
-        if (config.Skip)
-        {
-            return;
-        }
-
         var outputArchive = $"{directoryPath}.zip";
 
         if (File.Exists(outputArchive))

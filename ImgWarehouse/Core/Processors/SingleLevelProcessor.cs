@@ -1,4 +1,5 @@
-﻿using ImgWarehouse.Models;
+﻿using ImgWarehouse.Core.DTO;
+using ImgWarehouse.Models;
 
 namespace ImgWarehouse.Core.Processors;
 
@@ -8,11 +9,21 @@ internal class SingleLevelProcessor : DirectoryProcessor
     {
     }
 
-    internal override List<DirectoryData> GetDirectoryData(string directoryPath)
+    internal override DirectoryData GetDirectoryData(string directoryPath)
     {
-        return new List<DirectoryData>()
+        var result = new DirectoryData
         {
-            GetSingleDirectoryData(directoryPath, true, true)
+            Path = directoryPath,
         };
+
+        var contactList = GetSingleDirectoryData(directoryPath, true, true);
+
+        if (contactList.Images.Any())
+        {
+            result.ArchiveEntries.Add(directoryPath);
+            result.ContactLists.Add(contactList);
+        }
+
+        return result;
     }
 }

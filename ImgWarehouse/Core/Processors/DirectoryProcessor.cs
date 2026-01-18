@@ -1,4 +1,5 @@
-﻿using ImgWarehouse.Logging;
+﻿using ImgWarehouse.Core.DTO;
+using ImgWarehouse.Logging;
 using ImgWarehouse.Models;
 using Microsoft.Extensions.Logging;
 
@@ -29,24 +30,27 @@ internal abstract class DirectoryProcessor
 
         Logger.LogDebug("Processing directory");
 
-        var dirsData = GetDirectoryData(directoryPath);
+        var dirData = GetDirectoryData(directoryPath);
 
-        foreach (var directoryData in dirsData)
+        foreach (var contactListData in dirData.ContactLists)
         {
-            ContactList.Create(directoryData.Images, $"{directoryData.Path}.jpg");
+            ContactList.Create(contactListData, baseDirectory);
+        }
 
-            if (!Config.ArchiveConfig.Skip)
+        if (!Config.ArchiveConfig.Skip)
+        {
+            foreach (var archiveEntry in dirData.ArchiveEntries)
             {
-                Archiver.ArchiveDirectory(Config.ArchiveConfig, directoryData.Path);
+                Archiver.ArchiveDirectory(Config.ArchiveConfig, baseDirectory, archiveEntry);
             }
         }
 
         Logger.LogInformation("Successfully processed");
     }
 
-    internal abstract List<DirectoryData> GetDirectoryData(string directoryPath);
+    internal abstract DirectoryData GetDirectoryData(string directoryPath);
 
-    protected DirectoryData GetSingleDirectoryData(string directoryPath, bool subDirWarning, bool noImgWarning)
+    protected ContactListData GetSingleDirectoryData(string directoryPath, bool subDirWarning, bool noImgWarning)
     {
         var images = Directory.EnumerateFiles(directoryPath)
             .Where(file => SupportedImageExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
@@ -62,9 +66,9 @@ internal abstract class DirectoryProcessor
             Logger.LogWarning("Directory contains subdirectories");
         }
 
-        return new DirectoryData()
+        return new ContactListData()
         {
-            Path = directoryPath,
+            Name = directoryPath,
             Images = images
         };
     }

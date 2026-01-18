@@ -1,4 +1,5 @@
-﻿using ImgWarehouse.Logging;
+﻿using ImgWarehouse.Core.Helpers;
+using ImgWarehouse.Logging;
 using ImgWarehouse.Models;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
@@ -9,9 +10,9 @@ internal class Archiver
 {
     private ILogger Logger { get; set; } = LoggerServiceLocator.CreateLogger<Archiver>();
 
-    public void ArchiveDirectory(ArchiveConfig config, string directoryPath)
+    public void ArchiveDirectory(ArchiveConfig config, string outputDir, string directoryPath)
     {
-        var outputArchive = $"{directoryPath}.zip";
+        var outputArchive = PathResolver.ResolveOutputPath(outputDir, directoryPath, "zip");
 
         if (File.Exists(outputArchive))
         {

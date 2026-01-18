@@ -1,4 +1,6 @@
 ﻿using ImageMagick;
+using ImgWarehouse.Core.DTO;
+using ImgWarehouse.Core.Helpers;
 using ImgWarehouse.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -16,13 +18,15 @@ internal class ContactList
 
     private ILogger Logger { get; set; } = LoggerServiceLocator.CreateLogger<ContactList>();
 
-    public void Create(List<string> imagePaths, string outputFile)
+    public void Create(ContactListData listData, string outputDir)
     {
         Logger.LogDebug("Creating Contact List");
 
+        var outputFileName = PathResolver.ResolveOutputPath(outputDir, listData.Name, "jpg");
+
         using (var images = new MagickImageCollection())
         {
-            foreach (var path in imagePaths)
+            foreach (var path in listData.Images)
             {
                 var img = new MagickImage(path)
                 {
@@ -41,7 +45,7 @@ internal class ContactList
 
             using (var montage = images.Montage(settings))
             {
-                montage.Write(outputFile);
+                montage.Write(outputFileName);
             }
         }
 

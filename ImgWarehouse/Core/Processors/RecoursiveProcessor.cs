@@ -1,4 +1,5 @@
-﻿using ImgWarehouse.Models;
+﻿using ImgWarehouse.Core.DTO;
+using ImgWarehouse.Models;
 
 namespace ImgWarehouse.Core.Processors;
 
@@ -8,23 +9,30 @@ internal class RecoursiveProcessor : DirectoryProcessor
     {
     }
 
-    internal override List<DirectoryData> GetDirectoryData(string directoryPath)
+    internal override DirectoryData GetDirectoryData(string directoryPath)
     {
-        var mergedDirectoryData = new DirectoryData
+        var result = new DirectoryData
         {
             Path = directoryPath,
-            Images = new List<string>()
         };
+
+        var mergedDirectoryData = new List<string>();
 
         TraverseDirectories(directoryPath, (currentDirPath) =>
         {
             var currentDirData = GetSingleDirectoryData(currentDirPath, false, false);
-            mergedDirectoryData.Images.AddRange(currentDirData.Images);
+            mergedDirectoryData.AddRange(currentDirData.Images);
         });
 
-        return new List<DirectoryData>
-        {
-            mergedDirectoryData,
-        };
+        if (mergedDirectoryData.Any()) {
+            result.ArchiveEntries.Add(directoryPath);
+            result.ContactLists.Add(new ContactListData
+            {
+                Name = directoryPath,
+                Images = mergedDirectoryData
+            });
+        }
+
+        return result;
     }
 }
